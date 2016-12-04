@@ -1,0 +1,505 @@
+WEBVTT
+
+1
+00:00:08.428 --> 00:00:13.094
+So now what we're going to do is do pretty
+much the largest data mining application
+
+2
+00:00:13.094 --> 00:00:15.490
+that we're going to do in this class.
+
+3
+00:00:15.490 --> 00:00:19.080
+We're at the last chapter, we're at
+the last example of the last chapter.
+
+4
+00:00:19.080 --> 00:00:21.620
+And so, we come back to the beginning.
+
+5
+00:00:21.620 --> 00:00:25.280
+When we started, we were looking at
+a mailing list of the Sakai developer
+
+6
+00:00:25.280 --> 00:00:29.730
+community for all these
+assignments from chapter seven on.
+
+7
+00:00:29.730 --> 00:00:33.250
+And so we're going to look at
+a much larger fragment of that and
+
+8
+00:00:33.250 --> 00:00:36.790
+look at many years of this and
+do some visualization at it, of this.
+
+9
+00:00:36.790 --> 00:00:40.620
+And so it's also going to show us
+how to do a multi-step analysis.
+
+10
+00:00:40.620 --> 00:00:43.870
+Now, this is a large data set.
+
+11
+00:00:43.870 --> 00:00:48.210
+If you were to download all of this,
+it might turn out to be about a gigabyte.
+
+12
+00:00:48.210 --> 00:00:51.910
+When I download this,
+I can't download it in one day.
+
+13
+00:00:51.910 --> 00:00:55.220
+I sort of like start it and
+let it run for a while.
+
+14
+00:00:55.220 --> 00:00:59.600
+And then I have to stop it, and then I
+wait till the next day and do it, and so
+
+15
+00:00:59.600 --> 00:01:03.557
+I don't want you to use up all of
+your personal network bandwidth,
+
+16
+00:01:03.557 --> 00:01:06.258
+especially if you're on a slow connection.
+
+17
+00:01:06.258 --> 00:01:09.048
+You don't have to do much of this,
+
+18
+00:01:09.048 --> 00:01:13.388
+the really large thing is unnecessary for
+the class.
+
+19
+00:01:13.388 --> 00:01:16.695
+You only have to do the Word Cloud,
+which doesn't require you to download so
+
+20
+00:01:16.695 --> 00:01:17.218
+much data.
+
+21
+00:01:17.218 --> 00:01:20.898
+It's just fun at times to look and
+work at a bunch of data.
+
+22
+00:01:20.898 --> 00:01:24.310
+And so, if you were to download 
+all of this data,
+
+23
+00:01:24.310 --> 00:01:27.910
+you can get a copy of this
+from the original source.
+
+24
+00:01:27.910 --> 00:01:31.984
+But don't touch that because our students
+have crashed them before and that's
+
+25
+00:01:31.984 --> 00:01:36.018
+kind of rude to crash them because they're
+nice folks and it's a free use site.
+
+26
+00:01:36.018 --> 00:01:38.580
+So I made a copy of all
+the data that you need for
+
+27
+00:01:38.580 --> 00:01:41.148
+this assignment on mbox.dr-chuck.net.
+
+28
+00:01:41.148 --> 00:01:42.923
+And that's on a super-scalable server and
+
+29
+00:01:42.923 --> 00:01:46.450
+it's cached all around the world on
+a thing called a content data network.
+
+30
+00:01:46.450 --> 00:01:50.628
+So that should be really, really easy and
+you should get really fast communication.
+
+31
+00:01:50.628 --> 00:01:54.466
+As long as you're not paying in metered
+bandwidth, just feel free to hit that as
+
+32
+00:01:54.466 --> 00:01:57.409
+hard as you want and
+I'll watch my little bandwidth spikes.
+
+33
+00:01:57.409 --> 00:02:00.641
+You can watch me on Twitter and
+I'll be like, holy mackerel,
+
+34
+00:02:00.641 --> 00:02:03.888
+I hit 20 megabytes this week,
+or 20 gigabytes this week.
+
+35
+00:02:03.888 --> 00:02:09.438
+So mbox.dr-chuck.net should take
+all of you hitting it pretty hard.
+
+36
+00:02:09.438 --> 00:02:10.914
+And because it might take you three or
+
+37
+00:02:10.914 --> 00:02:14.068
+four days of work to get to the point
+where you've downloaded the whole thing.
+
+38
+00:02:14.068 --> 00:02:16.225
+If you're bored and
+you really want to do it,
+
+39
+00:02:16.225 --> 00:02:20.148
+feel free to download all 60,000
+messages from mbox.dr-chuck.net.
+
+40
+00:02:20.148 --> 00:02:23.183
+But I've also given you something
+that's got sort of like most of
+
+41
+00:02:23.183 --> 00:02:24.300
+the data already done.
+
+42
+00:02:24.300 --> 00:02:28.240
+Read the file called readme.zip in the zip
+file and then download that file and
+
+43
+00:02:28.240 --> 00:02:28.760
+unzip it.
+
+44
+00:02:28.760 --> 00:02:32.710
+And then start from there, and
+you can download some more stuff, but
+
+45
+00:02:32.710 --> 00:02:36.640
+it saves you the first three or four
+days of downloading by downloading that.
+
+46
+00:02:36.640 --> 00:02:40.780
+And again, that's compressed and
+it's over 100 megabytes compressed and
+
+47
+00:02:40.780 --> 00:02:45.290
+so, if you're on a slow network
+connection, don't do it.
+
+48
+00:02:45.290 --> 00:02:47.620
+But if you're on a fast network
+connection, it's fun and
+
+49
+00:02:47.620 --> 00:02:51.130
+then things take a long time and you're
+just crunching lots of data. And to me,
+
+50
+00:02:51.130 --> 00:02:54.150
+it's sort of satisfying to
+crunch a whole bunch of data.
+
+51
+00:02:54.150 --> 00:02:57.648
+So this basically is the work that 
+we're going to do here.
+
+52
+00:02:57.648 --> 00:03:02.310
+And so, we have this website here that's,
+you don't want to use this website, you've
+
+53
+00:03:02.310 --> 00:03:06.671
+got to use the mbox.dr-chuck website,
+so don't actually talk to gmane.org.
+
+54
+00:03:06.671 --> 00:03:08.060
+That would be tacky.
+
+55
+00:03:08.060 --> 00:03:09.310
+So you talk to mbox here.
+
+56
+00:03:11.180 --> 00:03:14.380
+And then you're going to run a process
+just like a couple things that we've done
+
+57
+00:03:14.380 --> 00:03:16.440
+that's a restartable process.
+
+58
+00:03:16.440 --> 00:03:20.630
+And so, what we do is we take and make
+this restartable process that sort of just
+
+59
+00:03:20.630 --> 00:03:24.370
+copies some chunk of network
+data into a local copy.
+
+60
+00:03:24.370 --> 00:03:28.300
+And this is a very raw database that
+doesn't do too much complex stuff.
+
+61
+00:03:28.300 --> 00:03:31.370
+And then this data turns
+out to be sort of dirty.
+
+62
+00:03:31.370 --> 00:03:35.550
+And the problem is, is that over the
+five-year period that this data covers,
+
+63
+00:03:36.600 --> 00:03:38.520
+some people went from one
+university to another,
+
+64
+00:03:38.520 --> 00:03:41.300
+some people went from one job to another,
+and I wanted to map that.
+
+65
+00:03:41.300 --> 00:03:42.780
+And so, I made this little mapping file,
+
+66
+00:03:42.780 --> 00:03:47.130
+I'll show you, that sort of maps
+domain names and email addresses,
+
+67
+00:03:47.130 --> 00:03:51.230
+so that everyone can go from their old
+email address to the new email address.
+
+68
+00:03:51.230 --> 00:03:55.990
+And this is a real tiny, this
+mapping.sqlite is a tiny little file, but
+
+69
+00:03:55.990 --> 00:03:57.638
+it informs gmodel.py.
+
+70
+00:03:57.638 --> 00:04:03.858
+And so, to pull all this down
+is one to two days, right?
+
+71
+00:04:03.858 --> 00:04:09.390
+One to two days, and if you have to stop,
+it might be three or four days.
+
+72
+00:04:09.390 --> 00:04:14.670
+To download the 100 megabytes of stuff,
+probably took me three days,
+
+73
+00:04:14.670 --> 00:04:18.130
+and I have really fast connections,
+both at the university and at home.
+
+74
+00:04:18.130 --> 00:04:21.130
+And so this is restartable, it's very raw.
+
+75
+00:04:21.130 --> 00:04:22.420
+We don't do much to it.
+
+76
+00:04:22.420 --> 00:04:26.300
+We just try to get the data and
+focus on restartability and
+
+77
+00:04:26.300 --> 00:04:28.980
+error checking and
+worry about the networking.
+
+78
+00:04:28.980 --> 00:04:32.300
+So that's again a very common thing
+that the first thing you gotta do is
+
+79
+00:04:32.300 --> 00:04:35.370
+get the data on your hard drive
+in your hot little hands.
+
+80
+00:04:36.570 --> 00:04:39.000
+Then we do this thing called gmodel.py.
+
+81
+00:04:39.000 --> 00:04:43.320
+This file right here could be as large
+as 1GB, that's a pretty large file.
+
+82
+00:04:43.320 --> 00:04:45.030
+It's not compressed.
+
+83
+00:04:45.030 --> 00:04:49.333
+And then gmodel.py cleans this up and
+creates a more relational model.
+
+84
+00:04:49.333 --> 00:04:54.190
+It uses foreign keys and
+all those kind of things that we've talked
+
+85
+00:04:54.190 --> 00:04:58.120
+about to really compress the data down and
+make it scan really fast.
+
+86
+00:04:58.120 --> 00:05:01.049
+because we're going to scan it a lot and
+so gmodel.py,
+
+87
+00:05:01.049 --> 00:05:02.988
+it's kind of a slow processes.
+
+88
+00:05:02.988 --> 00:05:08.166
+But then this file is much smaller and
+much more efficient to go through.
+
+89
+00:05:08.166 --> 00:05:11.200
+And then we have a series of
+applications that read through this.
+
+90
+00:05:11.200 --> 00:05:12.670
+One is the word cloud,
+
+91
+00:05:12.670 --> 00:05:15.650
+this is the one you can do no
+matter how much data you pull down.
+
+92
+00:05:15.650 --> 00:05:19.290
+And then the lines make more sense
+if you get a few years of data.
+
+93
+00:05:19.290 --> 00:05:22.188
+And so I've got a one that is
+more about individuals and
+
+94
+00:05:22.188 --> 00:05:25.658
+then another one that shows by year
+which is more of an aggregate.
+
+95
+00:05:25.658 --> 00:05:31.176
+And these both produce a JavaScript
+file that is then visualized by d3.
+
+96
+00:05:31.176 --> 00:05:32.756
+The same is true for the Word guy.
+
+97
+00:05:32.756 --> 00:05:35.511
+The Word makes a JavaScript
+file of the words, and
+
+98
+00:05:35.511 --> 00:05:37.618
+then uses Word Cloud visualization.
+
+99
+00:05:37.618 --> 00:05:40.825
+And I'm giving you different
+kinds of visualizations so
+
+100
+00:05:40.825 --> 00:05:44.040
+that you can kind of adapt
+these if you feel like it.
+
+101
+00:05:44.040 --> 00:05:45.710
+There's many ways to visualize data.
+
+102
+00:05:45.710 --> 00:05:47.911
+I just happen to like this d3.js but
+
+103
+00:05:47.911 --> 00:05:51.608
+they're sometimes a little
+difficult to figure out, okay?
+
+104
+00:05:51.608 --> 00:05:54.518
+And so that's roughly the outline
+of the things we're going to do.
+
+105
+00:05:54.518 --> 00:05:57.871
+We're going to take a look at each
+one of these programs in order and
+
+106
+00:05:57.871 --> 00:06:01.920
+then run them and take a look at the
+output and we'll do that right after this.

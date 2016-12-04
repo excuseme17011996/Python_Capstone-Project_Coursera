@@ -1,0 +1,334 @@
+WEBVTT
+
+1
+00:00:08.743 --> 00:00:12.023
+So through the magic of television,
+we didn't have to wait through that long
+
+2
+00:00:12.023 --> 00:00:15.350
+process, and
+we've seen over 52,000 records.
+
+3
+00:00:15.350 --> 00:00:18.010
+If I take a look at the size
+of these two files,
+
+4
+00:00:18.010 --> 00:00:21.290
+you see that there's a lot of things
+that make this more efficient.
+
+5
+00:00:21.290 --> 00:00:25.970
+So the content file is 518
+
+6
+00:00:25.970 --> 00:00:30.067
+megabytes, half a gig.
+
+7
+00:00:30.067 --> 00:00:35.073
+And then it's only 219 megabytes,
+and it took basically ten
+
+8
+00:00:35.073 --> 00:00:41.820
+plus minutes to read all the way through
+this, do all the stuff, and write all this.
+
+9
+00:00:41.820 --> 00:00:44.910
+And we're going to find now that when we
+read this, it's going to read really fast.
+
+10
+00:00:44.910 --> 00:00:48.300
+Because it's not even reading the whole
+file when we're asking for things.
+
+11
+00:00:48.300 --> 00:00:50.780
+It's going to zoom through really fast.
+
+12
+00:00:50.780 --> 00:00:56.431
+So from now on, we are basically
+working with index.sqlite and
+
+13
+00:00:56.431 --> 00:00:58.420
+we're going to be pulling stuff.
+
+14
+00:00:58.420 --> 00:01:02.410
+So this part took ten minutes,
+this part took two days,
+
+15
+00:01:02.410 --> 00:01:06.890
+this part takes ten minutes, and
+this you'll see just how fast gbasic runs.
+
+16
+00:01:06.890 --> 00:01:10.960
+It is still reading through every
+bit of the data in index.sqlite.
+
+17
+00:01:10.960 --> 00:01:12.660
+So that's the next thing we're
+going to take a look at.
+
+18
+00:01:14.220 --> 00:01:16.283
+So let's take a look at gbasic.py.
+
+19
+00:01:16.283 --> 00:01:22.540
+gbasic.py is just a general
+pattern of a quick select, right?
+
+20
+00:01:22.540 --> 00:01:25.910
+So this one is the most understandable
+of what we're going to do.
+
+21
+00:01:25.910 --> 00:01:30.180
+So we're going to read all the senders,
+how many to dump.
+
+22
+00:01:30.180 --> 00:01:33.550
+We're going to open index.sqlite,
+and get ourselves a cursor.
+
+23
+00:01:33.550 --> 00:01:36.750
+Grab these things,
+load up all the senders into a dictionary.
+
+24
+00:01:36.750 --> 00:01:42.480
+The senders are now clean because part of
+gmodel.py was to clean up the senders.
+
+25
+00:01:42.480 --> 00:01:43.400
+And we got the subjects,
+
+26
+00:01:43.400 --> 00:01:47.930
+we're going to read all those so
+that means that everything is really fast.
+
+27
+00:01:47.930 --> 00:01:53.500
+And now we're going to go through all of
+the messages and pull out the message ids,
+
+28
+00:01:53.500 --> 00:01:57.580
+the guids, and put those in so
+that'll happen really fast.
+
+29
+00:01:57.580 --> 00:02:02.459
+And now, we're going to do a real simple
+dictionary of the different
+
+30
+00:02:02.459 --> 00:02:05.060
+number of counts and
+the different number of organizations.
+
+31
+00:02:05.060 --> 00:02:08.150
+The counts for per person and
+per organization.
+
+32
+00:02:08.150 --> 00:02:12.099
+And so
+I'm reading through all the messages.
+
+33
+00:02:12.099 --> 00:02:15.550
+I've got all this stuff in memory,
+messages.items.
+
+34
+00:02:15.550 --> 00:02:17.353
+So we've added all these things together.
+
+35
+00:02:17.353 --> 00:02:20.257
+And it's got the data from the database,
+sucked that into memory.
+
+36
+00:02:20.257 --> 00:02:22.460
+And so
+we're going to loop through those things.
+
+37
+00:02:22.460 --> 00:02:25.489
+We'll pull out message sub 1, which
+will be the person's email address.
+
+38
+00:02:25.489 --> 00:02:30.600
+And we'll say, sendcounts of sender equals, now
+this is just a standard dictionary thing.
+
+39
+00:02:30.600 --> 00:02:33.270
+Finally, we do something
+we're really familiar with,
+
+40
+00:02:33.270 --> 00:02:36.820
+we take the sendcounts of the sender and
+add 1 to it.
+
+41
+00:02:36.820 --> 00:02:40.690
+Then we're going to get the organization
+by tearing the email address apart and
+
+42
+00:02:40.690 --> 00:02:43.070
+taking the part after.
+
+43
+00:02:43.070 --> 00:02:46.370
+Hopefully there's two pieces,
+there's the email and the organization.
+
+44
+00:02:46.370 --> 00:02:48.637
+The domain that we're
+going to get is the pieces.
+
+45
+00:02:48.637 --> 00:02:53.173
+And then we're going to look at
+the sending organization, subdomain name,
+
+46
+00:02:53.173 --> 00:02:55.310
+and add a count to that.
+
+47
+00:02:55.310 --> 00:02:58.450
+And then we are going to
+print out these things.
+
+48
+00:02:58.450 --> 00:03:01.581
+And so we're going to go up from,
+we going to sort them.
+
+49
+00:03:01.581 --> 00:03:05.565
+And then we're going to,
+you sort these things and
+
+50
+00:03:05.565 --> 00:03:09.840
+print out up to the senders and
+how many they’ve done.
+
+51
+00:03:11.530 --> 00:03:16.510
+And then print out the organizations and
+how many that they've done.
+
+52
+00:03:16.510 --> 00:03:17.545
+So let's go ahead and run that.
+
+53
+00:03:29.224 --> 00:03:32.095
+Let's just drop the top 15 people and
+
+54
+00:03:32.095 --> 00:03:37.558
+organizations in this list, and
+I use this to look for anomalies.
+
+55
+00:03:37.558 --> 00:03:42.631
+So there's the top 15 people,
+top 15 email list participants,
+
+56
+00:03:42.631 --> 00:03:45.524
+and the top 15 email organizations.
+
+57
+00:03:45.524 --> 00:03:49.880
+So if I take the top 1,000,
+that's going to be everybody.
+
+58
+00:03:49.880 --> 00:03:54.340
+So I can use this, I would use
+this to kind of find anomalies and
+
+59
+00:03:54.340 --> 00:03:55.420
+clean up my data.
+
+60
+00:03:55.420 --> 00:03:57.390
+So I would just say, okay, run it.
+
+61
+00:03:57.390 --> 00:03:58.474
+Who are these people?
+
+62
+00:03:58.474 --> 00:04:01.444
+And then if I saw someone that
+looked like the same person twice,
+
+63
+00:04:01.444 --> 00:04:02.553
+then I would move them.
+
+64
+00:04:02.553 --> 00:04:06.120
+And I might not have caught all
+the mistakes that are in this.
+
+65
+00:04:06.120 --> 00:04:10.163
+So now that we have taken a look
+at the basic statistics here,
+
+66
+00:04:10.163 --> 00:04:14.210
+that we've read through index.sqlite,
+ran gbasic.py,
+
+67
+00:04:14.210 --> 00:04:18.890
+used the dictionary,
+did some basic statistics on our stuff.
+
+68
+00:04:18.890 --> 00:04:21.342
+What we're going to do next is we're
+going to read through the data again.
+
+69
+00:04:21.342 --> 00:04:25.476
+This time we're going to create a word
+map of things and use gword.py.
+
+70
+00:04:25.476 --> 00:04:26.460
+So that's we're going to do next.

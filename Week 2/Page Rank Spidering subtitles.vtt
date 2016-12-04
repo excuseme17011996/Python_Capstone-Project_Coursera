@@ -1,0 +1,1077 @@
+WEBVTT
+
+1
+00:00:08.702 --> 00:00:11.530
+So we've been playing with this
+little chunk of code here,
+
+2
+00:00:11.530 --> 00:00:15.030
+the code that's going to do our spidering,
+we've spidered two pages.
+
+3
+00:00:15.030 --> 00:00:17.651
+I think it's probably, and we've looked at
+a little bit of what goes in the database.
+
+4
+00:00:17.651 --> 00:00:19.460
+We've got the links.
+
+5
+00:00:19.460 --> 00:00:21.342
+We've got the Links table,
+
+6
+00:00:21.342 --> 00:00:26.370
+we've seen how the Pages table grows
+really fast and uses the html and error.
+
+7
+00:00:26.370 --> 00:00:30.168
+Select randomly among unretrieved
+page to sort of fill the thing up.
+
+8
+00:00:30.168 --> 00:00:34.970
+That means this spidering will go,
+it'll build lots of links really fast.
+
+9
+00:00:34.970 --> 00:00:39.035
+The number that will retrieve will be
+small compared to the number we'll find.
+
+10
+00:00:39.035 --> 00:00:41.080
+because on this there's
+an average of 25 links a page,
+
+11
+00:00:41.080 --> 00:00:42.668
+because we're going through our name data.
+
+12
+00:00:42.668 --> 00:00:47.685
+We have this many-to-many relationship,
+Pages upon itself, or Pages onto itself.
+
+13
+00:00:47.685 --> 00:00:51.330
+Which is really two many-to-one
+relationships with two foreign keys, but
+
+14
+00:00:51.330 --> 00:00:55.331
+really, the way to think about this
+is two foreign keys that go to the same
+
+15
+00:00:55.331 --> 00:00:58.840
+table, because it's one page
+linking to another page, all right?
+
+16
+00:00:58.840 --> 00:01:00.568
+The from page and the to page,
+
+17
+00:01:00.568 --> 00:01:04.730
+so the from is where the link is at and
+the to is where the link is going to.
+
+18
+00:01:04.730 --> 00:01:06.305
+So let's take a look at the code.
+
+19
+00:01:06.305 --> 00:01:10.790
+Let's take a look at this now from the
+perspective of code and see what we got.
+
+20
+00:01:10.790 --> 00:01:12.345
+So this is the code that we're looking at.
+
+21
+00:01:12.345 --> 00:01:13.872
+This is the code that we've been running.
+
+22
+00:01:13.872 --> 00:01:17.243
+And so, we're going to import sqlite,
+import urllib,
+
+23
+00:01:17.243 --> 00:01:21.952
+ssl if you're going to do SSL, https,
+and then of course, BeautifulSoup.
+
+24
+00:01:21.952 --> 00:01:24.800
+This is really a combination
+a lot of things that we've done.
+
+25
+00:01:24.800 --> 00:01:29.068
+If you have problems with SSL, there's
+comments in the code that'll try to help
+
+26
+00:01:29.068 --> 00:01:32.641
+you figure out how to make the SSL work,
+so look for that in the code or
+
+27
+00:01:32.641 --> 00:01:33.492
+in the README.
+
+28
+00:01:33.492 --> 00:01:36.890
+But this is not https so
+it's a little easier.
+
+29
+00:01:36.890 --> 00:01:40.735
+spider.sqlite is the database that
+we're going to store this in.
+
+30
+00:01:40.735 --> 00:01:43.830
+A cursor is kind of our way
+to talk to that database.
+
+31
+00:01:43.830 --> 00:01:47.583
+The first thing we're going to do is
+create these three tables, Pages,
+
+32
+00:01:47.583 --> 00:01:51.156
+which is a URL, the HTML, the error, and
+then old rank and new rank.
+
+33
+00:01:51.156 --> 00:01:54.853
+So the first phase we're really
+working on the url, html and error,
+
+34
+00:01:54.853 --> 00:01:56.448
+during the spidering phase,
+
+35
+00:01:56.448 --> 00:01:59.980
+then we have the Links which is just
+two integers, from_id and to_id.
+
+36
+00:01:59.980 --> 00:02:04.670
+And then Webs is just a little scratch
+space for us to store the file.
+
+37
+00:02:04.670 --> 00:02:08.137
+So here we just check
+to see with a select,
+
+38
+00:02:08.137 --> 00:02:13.303
+to see if the Webs is already there.
+If we got some unused pages.
+
+39
+00:02:13.303 --> 00:02:19.590
+So, we select id and url from Pages
+where html is null and error is null.
+
+40
+00:02:19.590 --> 00:02:22.517
+This is the thing I said,
+that's how we determine unretrieved.
+
+41
+00:02:22.517 --> 00:02:27.033
+And there's this little nice thing, order
+by random, which says pick effectively
+
+42
+00:02:27.033 --> 00:02:30.421
+a random page among the unretrieved pages,
+and limit it to one.
+
+43
+00:02:30.421 --> 00:02:31.813
+So that just gives us one.
+
+44
+00:02:31.813 --> 00:02:36.600
+So we fetch a URL, and if we have no
+unretrieved pages, we just kind of quit.
+
+45
+00:02:36.600 --> 00:02:40.107
+But basically, if we have unretrieved
+pages we just keep on going, and
+
+46
+00:02:40.107 --> 00:02:42.513
+we have to remove that file
+if we want to restart.
+
+47
+00:02:42.513 --> 00:02:47.880
+And here, otherwise, we just basically
+ask the user for a starting URL.
+
+48
+00:02:47.880 --> 00:02:51.424
+If they don't specify one
+we take a default, and
+
+49
+00:02:51.424 --> 00:02:55.666
+then we snip it up a little bit and
+then we put it in this Webs.
+
+50
+00:02:55.666 --> 00:02:58.863
+We put in the Webs so
+that we remember where we started and
+
+51
+00:02:58.863 --> 00:03:01.236
+then we also put in the Page.
+
+52
+00:03:01.236 --> 00:03:06.011
+So we're putting this in to wake it up, so
+we're putting in the URL, the HTML, but
+
+53
+00:03:06.011 --> 00:03:09.765
+we're setting the html to null and
+giving it page rank of 1.0,
+
+54
+00:03:09.765 --> 00:03:11.490
+which we'll explain later.
+
+55
+00:03:11.490 --> 00:03:16.184
+And so what we do is at the end of this
+statement, we have one unretrieved page,
+
+56
+00:03:16.184 --> 00:03:19.180
+which is the page that the user typed in,
+okay?
+
+57
+00:03:20.320 --> 00:03:21.474
+So now, we grab all the Webs.
+
+58
+00:03:21.474 --> 00:03:24.836
+This could work with more than one page,
+but right now it only works with one page,
+
+59
+00:03:24.836 --> 00:03:26.900
+so you can kind of ignore this little bit.
+
+60
+00:03:26.900 --> 00:03:30.605
+So now we have a while loop,
+an infinite while loop,
+
+61
+00:03:30.605 --> 00:03:34.241
+that's going to ask,
+how many page do you want to run?
+
+62
+00:03:34.241 --> 00:03:36.820
+And then it's going to
+run this many pages.
+
+63
+00:03:36.820 --> 00:03:39.206
+And so this is the code that
+we're going to do for each page.
+
+64
+00:03:39.206 --> 00:03:43.425
+We're going to select id and url from Pages,
+again where html is null and
+
+65
+00:03:43.425 --> 00:03:45.950
+error is null, order by random.
+
+66
+00:03:45.950 --> 00:03:51.625
+That basically is saying grab a random
+unretrieved page and grab it and
+
+67
+00:03:51.625 --> 00:03:58.181
+we fetch one row from the database, we grab
+the from_id. that will become our from_id
+
+68
+00:03:58.181 --> 00:04:01.448
+because this is the page that
+we're about to retrieve, so
+
+69
+00:04:01.448 --> 00:04:05.460
+that's the primary key of
+the page record, and then the url.
+
+70
+00:04:05.460 --> 00:04:07.856
+And if we don't find any records,
+well, we're done.
+
+71
+00:04:07.856 --> 00:04:11.750
+We're out of stuff to retrieve and if you
+do a really tiny web site, it will stop.
+
+72
+00:04:11.750 --> 00:04:14.357
+It'll say, I've retrieved all my pages.
+
+73
+00:04:14.357 --> 00:04:18.499
+Like, if you start at
+www.doctorchuck.com/page1.htm it will
+
+74
+00:04:18.499 --> 00:04:22.250
+retrieve two pages and
+then it'll be like, I'm done.
+
+75
+00:04:23.660 --> 00:04:27.044
+Okay, so now it's going to print that out,
+the from_id,
+
+76
+00:04:27.044 --> 00:04:30.809
+which is the primary key, and
+the URL it's going to retrieve.
+
+77
+00:04:30.809 --> 00:04:35.403
+This is not necessarily going to be
+necessary unless we're going to somehow
+
+78
+00:04:35.403 --> 00:04:37.870
+stumble and re-retrieve something.
+
+79
+00:04:37.870 --> 00:04:40.638
+We're going to delete from
+Links where from_id equals and
+
+80
+00:04:40.638 --> 00:04:42.317
+then the page we're retrieving.
+
+81
+00:04:42.317 --> 00:04:45.580
+There should be no links in there
+because we haven't yet retrieved it.
+
+82
+00:04:45.580 --> 00:04:48.846
+But that's just in case. It doesn't
+hurt anything to not delete it.
+
+83
+00:04:48.846 --> 00:04:54.180
+So, here's a way or some comments about
+how to deal with the SSL anomalies.
+
+84
+00:04:54.180 --> 00:04:56.233
+But if you're just doing a regular HTTP,
+
+85
+00:04:56.233 --> 00:04:59.234
+we're going to open the URL like
+we've done many other times.
+
+86
+00:04:59.234 --> 00:05:00.710
+We're going to read the thing.
+
+87
+00:05:00.710 --> 00:05:03.449
+We're going to check to see if
+we didn't get a 200 error code.
+
+88
+00:05:03.449 --> 00:05:05.004
+404 means not found.
+
+89
+00:05:05.004 --> 00:05:06.373
+500 means server error.
+
+90
+00:05:06.373 --> 00:05:08.207
+200 means all good.
+
+91
+00:05:08.207 --> 00:05:13.270
+So if it's anything other than 200, we're
+going to update Pages and set the error.
+
+92
+00:05:13.270 --> 00:05:16.336
+So it means if we're going to have
+a problem with this page, with an error,
+
+93
+00:05:16.336 --> 00:05:18.298
+then we're going to just
+not going to retrieve it again,
+
+94
+00:05:18.298 --> 00:05:21.464
+because we have to either set the error
+to non null, or the html to non null,
+
+95
+00:05:21.464 --> 00:05:24.520
+otherwise, we'll keep retrieving
+the same page all over and over again.
+
+96
+00:05:24.520 --> 00:05:28.169
+So we just record the error, and if we
+see it then we go in our database and
+
+97
+00:05:28.169 --> 00:05:33.680
+figure out which ones are having errors,
+etc., etc. We're only going to look at HTML
+
+98
+00:05:33.680 --> 00:05:38.108
+because all the page have content types. So if
+the content type is not text/html, like it's an 
+
+99
+00:05:38.108 --> 00:05:42.234
+XML file or a jpg or something, we'll have 
+retrieved it but we're done.
+
+100
+00:05:42.234 --> 00:05:46.078
+And so if we don't like that, right,
+we're going to delete from Pages,
+
+101
+00:05:46.078 --> 00:05:48.900
+we're going to take that
+thing right out of there.
+
+102
+00:05:48.900 --> 00:05:52.484
+We don't want that URL, there's no
+reason to keep it, away we go, okay?
+
+103
+00:05:52.484 --> 00:05:58.176
+And then we commit it. And then we print in
+parentheses how long the characters are.
+
+104
+00:05:58.176 --> 00:06:01.690
+And then we call Beautiful Soup,
+okay, to parse it.
+
+105
+00:06:01.690 --> 00:06:03.839
+And if we have a problem,
+KeyboardInterrupt,
+
+106
+00:06:03.839 --> 00:06:07.561
+that's mostly during this phase, we're
+in the middle of a big try block here.
+
+107
+00:06:07.561 --> 00:06:10.907
+If something goes wrong,
+KeyboardInterrupt, that means you press
+
+108
+00:06:10.907 --> 00:06:14.253
+Ctrl+C and it shows how you can have
+something that runs a long time,
+
+109
+00:06:14.253 --> 00:06:17.600
+press Ctrl+C and then we control it,
+we're catching that.
+
+110
+00:06:17.600 --> 00:06:21.289
+Press the Ctrl+C or Ctrl+Z. Or
+if there's some other kind of funky thing
+
+111
+00:06:21.289 --> 00:06:24.743
+we'll print out an error message
+that says we couldn't retrieve it,
+
+112
+00:06:24.743 --> 00:06:28.683
+and we're going to set error equals -1 so
+that we don't re-retrieve this page again.
+
+113
+00:06:28.683 --> 00:06:33.276
+And so part of the idea is that
+we're always taking that Pages table and
+
+114
+00:06:33.276 --> 00:06:39.910
+making sure that when we retrieve
+something in the Pages table, Pages table.
+
+115
+00:06:39.910 --> 00:06:43.349
+If we either are going to put some HTML
+in there or something in the error,
+
+116
+00:06:43.349 --> 00:06:44.984
+because it's always looking for
+
+117
+00:06:44.984 --> 00:06:48.797
+a URL that still has not been either
+retrieved successfully or had a problem.
+
+118
+00:06:48.797 --> 00:06:52.659
+So you notice, all the code comes
+through and eventually sets the html or
+
+119
+00:06:52.659 --> 00:06:56.585
+sets the error, Remember,
+we're not doing anything with old_rank and
+
+120
+00:06:56.585 --> 00:06:57.810
+new_rank right yet.
+
+121
+00:06:57.810 --> 00:07:00.898
+Okay, so this one here.
+
+122
+00:07:00.898 --> 00:07:05.170
+At this point, once we're here,
+it looks like we've got a good page.
+
+123
+00:07:05.170 --> 00:07:09.848
+This page is an HTML page,
+we didn't get an error, it parsed okay.
+
+124
+00:07:09.848 --> 00:07:10.823
+Beautiful Soup liked it.
+
+125
+00:07:10.823 --> 00:07:12.368
+Beautiful Soup might blow up here.
+
+126
+00:07:12.368 --> 00:07:15.830
+If Beautiful Soup blows up,
+we're going to run this code.
+
+127
+00:07:15.830 --> 00:07:18.950
+Okay? So we're just,
+once we've got to this line,
+
+128
+00:07:18.950 --> 00:07:22.142
+line 106 in this particular bit of code,
+we're good.
+
+129
+00:07:22.142 --> 00:07:23.620
+So what are we going to do?
+
+130
+00:07:23.620 --> 00:07:26.730
+Well, we're going to insert
+into that page, insert or
+
+131
+00:07:26.730 --> 00:07:32.662
+ignore into Pages, where that URL equals,
+
+132
+00:07:32.662 --> 00:07:37.187
+and that probably, let's see,
+that URL should already be in there.
+
+133
+00:07:37.187 --> 00:07:41.328
+And so that'll mostly will be ignored,
+because it's probably already in there,
+
+134
+00:07:41.328 --> 00:07:42.580
+because we just pulled it up.
+
+135
+00:07:42.580 --> 00:07:43.834
+But then we're going to do an update.
+
+136
+00:07:43.834 --> 00:07:47.043
+I'm doing this because it's just,
+I'm being sure that it,
+
+137
+00:07:47.043 --> 00:07:48.530
+maybe it's not there.
+
+138
+00:07:48.530 --> 00:07:52.050
+But update Pages, set html=, where url=.
+
+139
+00:07:52.050 --> 00:07:53.965
+This is the real work here.
+
+140
+00:07:53.965 --> 00:07:57.160
+Buffer is just kind of converting
+that to the right format, so
+
+141
+00:07:57.160 --> 00:08:00.680
+the database is happy with it. Now
+at that point we've updated it.
+
+142
+00:08:00.680 --> 00:08:04.787
+And what we did is we put in to,
+that's where we put this HTML in.
+
+143
+00:08:04.787 --> 00:08:08.960
+That's both so we can look at it later,
+if we want to debug what's going on.
+
+144
+00:08:08.960 --> 00:08:10.893
+Or to make sure we don't
+retrieve it twice.
+
+145
+00:08:10.893 --> 00:08:11.844
+We've already got that one.
+
+146
+00:08:11.844 --> 00:08:14.085
+We don't want to retrieve for Pages twice.
+
+147
+00:08:14.085 --> 00:08:15.826
+So, at that point we're done.
+
+148
+00:08:15.826 --> 00:08:19.670
+Now, all we're going to do is
+go through and retrieve the anchor tags.
+
+149
+00:08:19.670 --> 00:08:20.914
+And we've done code like this before.
+
+150
+00:08:20.914 --> 00:08:25.848
+So, give me a list of all these anchor tags,
+loop through them.
+
+151
+00:08:25.848 --> 00:08:30.730
+Get the href, if we had no href, then
+we going do some parsing on the href.
+
+152
+00:08:30.730 --> 00:08:35.198
+This is some kind of yucky stuff
+that I just figured out, slowly but
+
+153
+00:08:35.198 --> 00:08:37.725
+surely beating it into submission.
+
+154
+00:08:37.725 --> 00:08:41.609
+Parsing it, throwing away suffixes,
+joining these things,
+
+155
+00:08:41.609 --> 00:08:44.740
+getting rid of pound sign anchors on them.
+
+156
+00:08:44.740 --> 00:08:49.106
+But eventually,
+we get a decent href out of this thing.
+
+157
+00:08:49.106 --> 00:08:53.566
+The next thing we do is we check to
+see If this is a URL that's actually
+
+158
+00:08:53.566 --> 00:08:55.600
+leaving the page, right?
+
+159
+00:08:55.600 --> 00:08:59.125
+So if we're start here we're
+going to stay in that page and
+
+160
+00:08:59.125 --> 00:09:03.475
+do all the child pages or all the pages
+in the same URL and below and so
+
+161
+00:09:03.475 --> 00:09:08.650
+this is really saying look, if we're not in
+it, just don't URLs that are leaving.
+
+162
+00:09:08.650 --> 00:09:12.851
+And then at this point we're going
+to insert or ignore into Pages
+
+163
+00:09:12.851 --> 00:09:17.212
+the URL And html is null,
+because we haven't retrieved this page,
+
+164
+00:09:17.212 --> 00:09:21.810
+and so this is our way of marking that
+we have a new page to work with.
+
+165
+00:09:21.810 --> 00:09:24.902
+We're just inserting it,
+then we're committing it,
+
+166
+00:09:24.902 --> 00:09:26.886
+to make sure it ends up in the database.
+
+167
+00:09:26.886 --> 00:09:32.180
+Okay, so if this page is on the same site,
+we're going to insert it into Pages. Right?
+
+168
+00:09:32.180 --> 00:09:38.208
+So we got the URL, which is
+really the href, The href of the link.
+
+169
+00:09:38.208 --> 00:09:40.962
+The htmlL is null,
+because we haven't retrieved it yet, and
+
+170
+00:09:40.962 --> 00:09:42.920
+a new rank always starts out at one.
+
+171
+00:09:42.920 --> 00:09:46.744
+Now, we have to figure out here,
+what the id is, because it was an
+
+172
+00:09:46.744 --> 00:09:50.901
+autoincrement, so we're going to do a select
+id from Pages where url equals the href.
+
+173
+00:09:50.901 --> 00:09:54.340
+Now, this is the to page,
+not the from page.
+
+174
+00:09:54.340 --> 00:09:58.720
+So, we're going to grab that URL, And
+we're going to grab the to ID.
+
+175
+00:09:58.720 --> 00:10:01.928
+If you recall, way, way, way,
+way up here, way up here.
+
+176
+00:10:01.928 --> 00:10:05.692
+Way up here somewhere we have from_id
+because we're in a outer loop that's going
+
+177
+00:10:05.692 --> 00:10:07.500
+through the pages being retrieved.
+
+178
+00:10:07.500 --> 00:10:11.802
+Now we're in a inner loop of finding all
+the links and so we have the from_id and
+
+179
+00:10:11.802 --> 00:10:16.177
+we have added the page to the to be
+retrieved pages. Then we've got a primary
+
+180
+00:10:16.177 --> 00:10:20.050
+key for that page which is this.
+The to_id is the primary key for
+
+181
+00:10:20.050 --> 00:10:22.377
+the page that we're just inserting.
+
+182
+00:10:22.377 --> 00:10:26.294
+And now we're going to insert
+into the Links from_id and to_id.
+
+183
+00:10:26.294 --> 00:10:31.056
+Okay and so that is what adds each time
+we add a new page to the bottom of
+
+184
+00:10:31.056 --> 00:10:33.060
+this field right there,
+
+185
+00:10:33.060 --> 00:10:36.903
+we're also adding in
+the bottom of the Links
+
+186
+00:10:36.903 --> 00:10:37.809
+something down here.
+
+187
+00:10:37.809 --> 00:10:40.190
+A link from that page, from
+the from page to the to page.
+
+188
+00:10:41.850 --> 00:10:43.503
+And then we're doing this over and
+
+189
+00:10:43.503 --> 00:10:45.845
+over and over and
+over again printing the count.
+
+190
+00:10:45.845 --> 00:10:47.875
+So this isn't too complex of a thing,
+
+191
+00:10:47.875 --> 00:10:51.680
+it's really a combination of
+a lot of stuff that we've done.
+
+192
+00:10:51.680 --> 00:10:55.223
+So now let's just fire it up and
+let it run.
+
+193
+00:10:55.223 --> 00:11:01.716
+So I'm going to say give me 30 pages. And
+so it's going to start retrieving pages.
+
+194
+00:11:01.716 --> 00:11:06.570
+[SOUND] So, each one of these
+pages has a bunch of links on it.
+
+195
+00:11:06.570 --> 00:11:09.597
+Get some data, parse it,
+get a bunch of links,
+
+196
+00:11:09.597 --> 00:11:12.260
+from, to, all the stuff is being updated.
+
+197
+00:11:13.268 --> 00:11:15.037
+Let's do 20 more pages, why not.
+
+198
+00:11:23.780 --> 00:11:24.766
+Now I'll just hit Enter.
+
+199
+00:11:24.766 --> 00:11:25.984
+Okay, I'm going to do something else.
+
+200
+00:11:25.984 --> 00:11:27.427
+I'm going to do 20 pages but
+
+201
+00:11:27.427 --> 00:11:30.880
+then I'm going to hit Ctrl+C
+to show you that that's okay.
+
+202
+00:11:30.880 --> 00:11:32.264
+Duh duh duh duh, it'll blow up.
+
+203
+00:11:32.264 --> 00:11:35.346
+Now, this might be blown up because
+your laptop went to sleep or
+
+204
+00:11:35.346 --> 00:11:37.858
+the network connection crapped out or
+something.
+
+205
+00:11:37.858 --> 00:11:38.614
+Whatever.
+
+206
+00:11:38.614 --> 00:11:41.927
+This thing is designed to pick
+right up where it left off,
+
+207
+00:11:41.927 --> 00:11:45.945
+because we can now go get five pages and
+it just keeps on going, okay?
+
+208
+00:11:45.945 --> 00:11:50.210
+And so I just hit Enter and so
+I have a bunch of pages in my thing and so
+
+209
+00:11:50.210 --> 00:11:55.055
+if I hit the refresh here,
+we're going to see a gillion links, right?
+
+210
+00:11:55.055 --> 00:11:58.680
+We got like 6100 links that we've modeled.
+
+211
+00:11:58.680 --> 00:12:01.033
+Let's see how many pages we have.
+
+212
+00:12:01.033 --> 00:12:02.985
+Let me refresh that.
+
+213
+00:12:02.985 --> 00:12:04.688
+We've got about 3800 pages but
+
+214
+00:12:04.688 --> 00:12:09.360
+you'll notice that we still have very few
+that have really been retrieved, right?
+
+215
+00:12:09.360 --> 00:12:11.148
+So we don't have a lot
+that were retrieved and
+
+216
+00:12:11.148 --> 00:12:14.221
+that's because every time we retrieve
+we'll get like a hundred more links.
+
+217
+00:12:14.221 --> 00:12:15.190
+The thing just keeps going.
+
+218
+00:12:15.190 --> 00:12:18.440
+Now Google, of course, has done
+this longer than you or I, so
+
+219
+00:12:18.440 --> 00:12:22.484
+they've kind of got all the links, but
+for us we don't have all the links.
+
+220
+00:12:22.484 --> 00:12:26.983
+So, let's just grabs
+some more at least some,
+
+221
+00:12:26.983 --> 00:12:31.045
+I should have just had this run for
+a while.
+
+222
+00:12:31.045 --> 00:12:32.529
+So we want to have enough data in here so
+
+223
+00:12:32.529 --> 00:12:35.353
+that we can have some people who
+got more links than other people.
+
+224
+00:12:35.353 --> 00:12:38.743
+So, we have to, we really want to get
+to the point where we have someone that
+
+225
+00:12:38.743 --> 00:12:41.878
+points to someone, points to someone
+that points back to someone.
+
+226
+00:12:41.878 --> 00:12:45.176
+And that's the interesting
+part about page rank. Okay?
+
+227
+00:12:45.176 --> 00:12:48.300
+So, I'll wait and let this fill up and
+then will come back and
+
+228
+00:12:48.300 --> 00:12:50.775
+we'll talk about the Page Rank algorithm.

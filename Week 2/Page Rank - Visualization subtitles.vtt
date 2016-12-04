@@ -1,0 +1,544 @@
+WEBVTT
+
+1
+00:00:08.787 --> 00:00:10.106
+So we crawled the Web,
+
+2
+00:00:10.106 --> 00:00:14.270
+we pulled our data in slowly off
+of the Internet following links.
+
+3
+00:00:14.270 --> 00:00:18.250
+We got our spider database that
+has lots of retrieved pages, and
+
+4
+00:00:18.250 --> 00:00:20.090
+actually far more unretrieved pages.
+
+5
+00:00:20.090 --> 00:00:24.540
+And then we ran our page rank algorithm
+until the network stabilized.
+
+6
+00:00:24.540 --> 00:00:28.810
+And then we took a quick output of
+the data just to take a look at it.
+
+7
+00:00:28.810 --> 00:00:33.340
+Although, we could use SQLite browser
+to see that probably just as well.
+
+8
+00:00:33.340 --> 00:00:36.560
+So now what we're going to do is
+we are going to dump this out and
+
+9
+00:00:36.560 --> 00:00:38.130
+then visualize it.
+
+10
+00:00:38.130 --> 00:00:42.750
+And, basically, this is using
+a visualization software called d3.js.
+
+11
+00:00:42.750 --> 00:00:47.050
+And if you're into visualization,
+this is really cool because it's a simple,
+
+12
+00:00:47.050 --> 00:00:49.920
+free, beautiful visualization.
+
+13
+00:00:49.920 --> 00:00:53.610
+And, honestly, it would take you a very
+long time to figure out how to write this.
+
+14
+00:00:53.610 --> 00:00:58.100
+So you go to d3.js, you find
+a visualization, and you sort of copy all
+
+15
+00:00:58.100 --> 00:01:02.780
+the JavaScript necessary to make it work,
+and then you sneak your own data into it.
+
+16
+00:01:02.780 --> 00:01:04.140
+And that's exactly what we're doing.
+
+17
+00:01:04.140 --> 00:01:07.320
+So I wrote an HTML page,
+you don't have to write that.
+
+18
+00:01:07.320 --> 00:01:09.540
+It calls this d3.js library, and
+
+19
+00:01:09.540 --> 00:01:13.140
+at the right point I say
+load up my force.js code.
+
+20
+00:01:13.140 --> 00:01:15.790
+And so all the data's going to 
+end up in here.
+
+21
+00:01:15.790 --> 00:01:20.650
+And so spjson's job is to
+pull the page rank data out
+
+22
+00:01:20.650 --> 00:01:25.560
+of spider.sqlite and then put it in
+here and then this we won't change.
+
+23
+00:01:25.560 --> 00:01:27.190
+We'll just read that stuff, okay?
+
+24
+00:01:28.800 --> 00:01:33.030
+So let's take a look at the code for
+spjson.
+
+25
+00:01:34.470 --> 00:01:38.870
+So basically this is going to, again,
+connect and get ourselves a cursor.
+
+26
+00:01:38.870 --> 00:01:44.840
+And it's going to select the number of
+inbound links, count of the inbound
+
+27
+00:01:44.840 --> 00:01:50.180
+links from from_id's, the old_rank,
+the new_rank, the page id, the url.
+
+28
+00:01:50.180 --> 00:01:53.210
+From the Pages, joined to the Links.
+
+29
+00:01:53.210 --> 00:01:57.970
+So this is connecting old,
+so Pages joined to Links so
+
+30
+00:01:57.970 --> 00:02:00.190
+that we have the to_id and the from_id.
+
+31
+00:02:00.190 --> 00:02:02.230
+And, of course, where html is not null and
+
+32
+00:02:02.230 --> 00:02:05.570
+error is null,
+those are the pages we're interested in.
+
+33
+00:02:05.570 --> 00:02:08.340
+And then we're going to group by their id
+
+34
+00:02:08.340 --> 00:02:10.150
+since there's going to be
+a bunch of these things.
+
+35
+00:02:10.150 --> 00:02:13.370
+And then we're going to order by the id
+and the number of inbound links so
+
+36
+00:02:13.370 --> 00:02:15.700
+that we have them that way.
+
+37
+00:02:15.700 --> 00:02:18.740
+And then we're just going to
+loop through those records and
+
+38
+00:02:18.740 --> 00:02:21.300
+open this file spider.js for write.
+
+39
+00:02:21.300 --> 00:02:23.100
+Then we're going to read
+through all the rows.
+
+40
+00:02:25.232 --> 00:02:29.160
+And add a JSON node to this list.
+
+41
+00:02:29.160 --> 00:02:32.950
+We're going to make some list
+nodes as a Python list object.
+
+42
+00:02:32.950 --> 00:02:35.560
+We're going to add the row,
+just row, row, row.
+
+43
+00:02:35.560 --> 00:02:37.920
+The row itself is an array.
+
+44
+00:02:37.920 --> 00:02:41.830
+And then, we're going to rank
+go until we run out of nodes.
+
+45
+00:02:41.830 --> 00:02:45.940
+And then we're going to write all
+that stuff out, the spider.js file.
+
+46
+00:02:45.940 --> 00:02:50.108
+We're going to create a variable,
+spider.json equals nodes colon.
+
+47
+00:02:50.108 --> 00:02:52.940
+And this is the beginning
+of an array in JSON.
+
+48
+00:02:52.940 --> 00:02:54.520
+This is the end of the array.
+
+49
+00:02:54.520 --> 00:02:57.380
+And then we're printing
+out in a particular format
+
+50
+00:02:57.380 --> 00:02:59.850
+all of the data from
+that select statement.
+
+51
+00:02:59.850 --> 00:03:00.550
+Okay?
+
+52
+00:03:00.550 --> 00:03:05.810
+And then we print out all the links, read
+all that through and then print that out.
+
+53
+00:03:05.810 --> 00:03:07.320
+So I will run that code
+
+54
+00:03:12.208 --> 00:03:16.190
+python spjson.py
+
+55
+00:03:16.190 --> 00:03:18.510
+Let's just do the top 25 nodes. Okay.
+
+56
+00:03:20.910 --> 00:03:24.700
+So, before we open force.html,
+let's take a look at spider.js.
+
+57
+00:03:24.700 --> 00:03:30.660
+And so, what we're going to have is
+a variable that has got a key mapped to
+
+58
+00:03:30.660 --> 00:03:36.610
+all the nodes where the weight,
+which is really the size, how big it is,
+
+59
+00:03:36.610 --> 00:03:41.450
+the rank position, which ID it is,
+the URL, we'll see where that shows up.
+
+60
+00:03:41.450 --> 00:03:44.170
+And then, those are all the nodes.
+
+61
+00:03:44.170 --> 00:03:45.790
+And then all the links,
+these are all the links.
+
+62
+00:03:45.790 --> 00:03:48.230
+So, these are the top
+25 pages by page rank.
+
+63
+00:03:50.010 --> 00:03:51.850
+And then these are simply the links,
+
+64
+00:03:51.850 --> 00:03:55.970
+the source, the target, and
+the value of the link, okay?
+
+65
+00:03:55.970 --> 00:04:01.420
+And so if I then take a look at 
+force.js, which
+
+66
+00:04:01.420 --> 00:04:06.302
+you don't have to touch, this is stuff
+I took right out of the d3.js website.
+
+67
+00:04:07.490 --> 00:04:10.930
+And at some point, I load the data,
+I put the JSON in.
+
+68
+00:04:10.930 --> 00:04:13.470
+I take the nodes and the links, and
+
+69
+00:04:13.470 --> 00:04:16.690
+that corresponds to these
+nodes because it's just JSON.
+
+70
+00:04:16.690 --> 00:04:19.320
+And in JavaScript JSON is supernatural.
+
+71
+00:04:19.320 --> 00:04:20.630
+And then the links.
+
+72
+00:04:20.630 --> 00:04:25.870
+And this data that I put in that
+file is exactly the data that I had,
+
+73
+00:04:25.870 --> 00:04:29.740
+took the sample data
+from the d3.js example.
+
+74
+00:04:29.740 --> 00:04:32.610
+Like, oh I will write some Python
+to make that exact code.
+
+75
+00:04:32.610 --> 00:04:34.740
+So, I didn't write any of this.
+
+76
+00:04:34.740 --> 00:04:37.970
+I just made sure that my data
+looked like their sample data.
+
+77
+00:04:37.970 --> 00:04:41.610
+This is my data, and it looked like
+the sample data that I found on d3.js.
+
+78
+00:04:41.610 --> 00:04:45.460
+And then this is all just stuff.
+
+79
+00:04:45.460 --> 00:04:47.250
+I didn't write this, I just borrowed it.
+
+80
+00:04:47.250 --> 00:04:51.937
+It says make a circle,
+make the color of the circle, and
+
+81
+00:04:51.937 --> 00:04:55.197
+then load data from that spiderJson file.
+
+82
+00:04:55.197 --> 00:04:59.920
+spiderJson is that variable
+that I have in spiderJson.js.
+
+83
+00:04:59.920 --> 00:05:01.550
+This is not a JavaScript class.
+
+84
+00:05:02.810 --> 00:05:07.379
+And then if I take a look at force.html,
+it's pretty simple.
+
+85
+00:05:07.379 --> 00:05:09.215
+It loads the d3 library.
+
+86
+00:05:09.215 --> 00:05:12.390
+spider.js, that's
+
+87
+00:05:12.390 --> 00:05:17.210
+this file right here that sets this
+variable spiderJson with all the data.
+
+88
+00:05:17.210 --> 00:05:22.140
+And then I have a style sheet and
+I print out the starting URL.
+
+89
+00:05:22.140 --> 00:05:25.240
+And then I run this
+force.js code which then
+
+90
+00:05:25.240 --> 00:05:29.000
+reads the data from this
+variable spiderJson.
+
+91
+00:05:29.000 --> 00:05:29.540
+Okay?
+
+92
+00:05:29.540 --> 00:05:30.150
+So there we go.
+
+93
+00:05:31.790 --> 00:05:35.230
+With all of that,
+I am going to start my browser.
+
+94
+00:05:38.287 --> 00:05:43.590
+And I'm going to open not Open Location.
+
+95
+00:05:44.690 --> 00:05:48.762
+Open File, and
+I'm going to go to my Desktop.
+
+96
+00:05:48.762 --> 00:05:55.329
+And pythonlearn code, code, code, code,
+
+97
+00:05:55.329 --> 00:06:01.240
+pagerank, pagerank, force.html.
+
+98
+00:06:01.240 --> 00:06:02.330
+That's the thing that we've got to open.
+
+99
+00:06:02.330 --> 00:06:06.470
+So we'll open that and it reads the data.
+
+100
+00:06:06.470 --> 00:06:09.650
+And look at that.
+
+101
+00:06:09.650 --> 00:06:13.690
+We now have a visualized page rank.
+
+102
+00:06:13.690 --> 00:06:16.710
+And so this is that one that
+somehow had a page rank of 19.
+
+103
+00:06:16.710 --> 00:06:18.560
+That's known by Aras.
+
+104
+00:06:18.560 --> 00:06:22.340
+So these are that same data you
+played with in other assignments.
+
+105
+00:06:22.340 --> 00:06:25.528
+It just so happens that I made it so
+that it wasn't uniform.
+
+106
+00:06:25.528 --> 00:06:28.120
+Some people are lucky and
+have lots of friends.
+
+107
+00:06:28.120 --> 00:06:30.660
+Some people aren't so lucky,
+and don't have lots of friends.
+
+108
+00:06:30.660 --> 00:06:33.850
+Don't worry I didn't, it's not personal,
+I just made it random.
+
+109
+00:06:33.850 --> 00:06:34.900
+And so you can see this.
+
+110
+00:06:34.900 --> 00:06:37.770
+And so that see this has,
+doesn't mean that there's lots of links.
+
+111
+00:06:37.770 --> 00:06:40.948
+The nodes that linked to
+this are not always on here.
+
+112
+00:06:40.948 --> 00:06:43.160
+And so, there you go.
+
+113
+00:06:43.160 --> 00:06:44.665
+So that's our visualization.
+
+114
+00:06:44.665 --> 00:06:48.540
+So, hope you find that useful and
+I hope that you can do this and
+
+115
+00:06:48.540 --> 00:06:51.420
+make your own visualization from our data.
+
+116
+00:06:51.420 --> 00:06:56.400
+Or if you get a little more adventurous,
+go spider some other place on the Web and
+
+117
+00:06:56.400 --> 00:06:59.120
+see if you can get it to work
+on some other part of the Web.
+
+118
+00:06:59.120 --> 00:06:59.620
+Thanks a lot.
